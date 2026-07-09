@@ -1,22 +1,21 @@
 services:
-  mysql:
-    image: mysql:8.4
-    container_name: gpn-mysql
+  postgres:
+    image: postgres:16-alpine
+    container_name: hexo-postgres
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root_secret
-      MYSQL_DATABASE: gpn_leads
-      MYSQL_USER: gpn_user
-      MYSQL_PASSWORD: gpn_pass
+      POSTGRES_DB: backoffice
+      POSTGRES_USER: backoffice_user
+      POSTGRES_PASSWORD: backoffice_pass
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - gpn_mysql_data:/var/lib/mysql
+      - hexo_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "gpn_user", "-p" "gpn_pass"]
+      test: ["CMD-SHELL", "pg_isready -U backoffice_user -d backoffice"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
-  gpn_mysql_data:
+  hexo_postgres_data:
