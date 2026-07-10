@@ -2,6 +2,8 @@ package com.gpn.leads.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,7 +30,8 @@ public class LeadEntity {
     @Column(nullable = false, length = 20)
     private String phone;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private LeadStatus status;
 
     @Column(nullable = true)

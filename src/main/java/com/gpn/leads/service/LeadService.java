@@ -3,6 +3,7 @@ package com.gpn.leads.service;
 import com.gpn.leads.exception.LeadNotFoundException;
 import com.gpn.leads.mapper.LeadMapper;
 import com.gpn.leads.model.LeadEntity;
+import com.gpn.leads.model.LeadStatus;
 import com.gpn.leads.model.dto.CreateLeadRequest;
 import com.gpn.leads.model.dto.LeadResponseDto;
 import com.gpn.leads.repository.LeadRepository;
@@ -22,6 +23,7 @@ public class LeadService {
         lead.setName(request.getName());
         lead.setPhone(request.getPhone());
         lead.setComment(request.getComment());
+        lead.setStatus(LeadStatus.CREATED);
         final var saved = leadRepository.save(lead);
         return LeadMapper.toDto(saved);
     }
