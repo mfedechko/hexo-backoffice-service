@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GpnLeadsApplication {
+public class HexoBackofficeApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GpnLeadsApplication.class, args);
+        SpringApplication.run(HexoBackofficeApplication.class, args);
     }
 }
