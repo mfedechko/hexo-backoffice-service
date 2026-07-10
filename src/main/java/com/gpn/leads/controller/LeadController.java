@@ -4,6 +4,7 @@ import com.gpn.leads.model.dto.CreateLeadRequest;
 import com.gpn.leads.model.dto.LeadResponseDto;
 import com.gpn.leads.service.LeadService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,9 +21,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/leads")
 @CrossOrigin(origins = "${app.cors.allowed-origins}")
+@AllArgsConstructor
 public class LeadController {
 
-    private LeadService leadService;
+    private final LeadService leadService;
 
     /**
      * POST /api/leads
