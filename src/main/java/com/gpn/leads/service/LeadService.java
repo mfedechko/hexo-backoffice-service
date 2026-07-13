@@ -49,7 +49,7 @@ public class LeadService {
         final var lead = leadRepository.findById(id)
                 .orElseThrow(() -> new LeadNotFoundException("Lead not found"));
         lead.setStatus(newStatus);
-        leadRepository.save(lead);
+        leadRepository.saveAndFlush(lead);
         return LeadMapper.toDto(lead);
     }
 }
