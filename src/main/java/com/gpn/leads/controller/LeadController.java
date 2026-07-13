@@ -1,5 +1,6 @@
 package com.gpn.leads.controller;
 
+import com.gpn.leads.model.LeadStatus;
 import com.gpn.leads.model.dto.CreateLeadRequest;
 import com.gpn.leads.model.dto.LeadResponseDto;
 import com.gpn.leads.service.LeadService;
@@ -17,8 +18,10 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -72,5 +75,16 @@ public class LeadController {
     public ResponseEntity<LeadResponseDto> getLeadById(
             @Parameter(description = "Lead ID") @PathVariable Long id) {
         return ResponseEntity.ok(leadService.getLead(id));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update a lead by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lead found"),
+            @ApiResponse(responseCode = "404", description = "Lead not found", content = @Content)
+    })
+    public ResponseEntity<LeadResponseDto> updateLeadeStatus(
+            @Parameter(description = "Lead ID") @PathVariable Long id, @RequestParam LeadStatus status) {
+        return ResponseEntity.ok(leadService.updateStatus(id, status));
     }
 }
