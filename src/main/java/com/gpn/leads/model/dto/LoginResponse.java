@@ -1,14 +1,15 @@
 package com.gpn.leads.model.dto;
 
-import lombok.Getter;
+import java.util.List;
 
-@Getter
-public class LoginResponse {
+public record LoginResponse(
+        String tokenType,
+        String accessToken,
+        String username,
+        String email,
+        List<String> roles) {
 
-    private final String tokenType = "Bearer";
-    private final String accessToken;
-
-    public LoginResponse(final String accessToken) {
-        this.accessToken = accessToken;
+    public LoginResponse(final String accessToken, final String username, final String email, final List<String> roles) {
+        this("Bearer", accessToken, username, email, roles);
     }
 }

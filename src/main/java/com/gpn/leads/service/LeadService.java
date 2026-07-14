@@ -4,6 +4,7 @@ import com.gpn.leads.exception.LeadNotFoundException;
 import com.gpn.leads.mapper.LeadMapper;
 import com.gpn.leads.model.LeadEntity;
 import com.gpn.leads.model.LeadStatus;
+import com.gpn.leads.model.dto.ChangeLeadStatusRequest;
 import com.gpn.leads.model.dto.CreateLeadRequest;
 import com.gpn.leads.model.dto.LeadResponseDto;
 import com.gpn.leads.repository.LeadRepository;
@@ -45,10 +46,10 @@ public class LeadService {
     }
 
     @Transactional
-    public LeadResponseDto updateStatus(final Long id, final LeadStatus newStatus) {
+    public LeadResponseDto updateStatus(final Long id, final ChangeLeadStatusRequest request) {
         final var lead = leadRepository.findById(id)
                 .orElseThrow(() -> new LeadNotFoundException("Lead not found"));
-        lead.setStatus(newStatus);
+        lead.setStatus(request.getNewStatus());
         leadRepository.saveAndFlush(lead);
         return LeadMapper.toDto(lead);
     }

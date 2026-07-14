@@ -32,10 +32,6 @@ app:
       # Override with the JWT_SECRET env var in prod - must be at least 256 bits (32 chars).
       secret: ${JWT_SECRET:local-dev-only-secret-key-please-change-me-3242}
       expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
-    admin:
-      username: ${ADMIN_USERNAME:admin}
-      # BCrypt hash. Default only matches "admin123" and is for local dev - override via ADMIN_PASSWORD_HASH in prod.
-      password-hash: ${ADMIN_PASSWORD_HASH:$2y$10$.tFOiGTPNNdLntNPopLgFex78cHKIxBcFVz9f2qgPOTfcKIj7U7fG}
 
 ---
 # ── LOCAL profile (Docker Postgres) ──────────────────────────────────────────
