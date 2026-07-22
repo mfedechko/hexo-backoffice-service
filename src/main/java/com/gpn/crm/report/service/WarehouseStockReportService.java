@@ -44,10 +44,11 @@ public class WarehouseStockReportService {
     }
 
     /**
-     * Builds one row per offer that has stock at the given warehouse. KeyCRM has no single
-     * endpoint for this, so it joins three full-catalog scans: /products (names), /offers
-     * (sku + properties + product_id) and /offers/stocks (per-warehouse quantity) - roughly
-     * 30 upstream requests for the current catalog size.
+     * Builds one row per offer at the given warehouse, including offers with zero (or no
+     * recorded) stock there. KeyCRM has no single endpoint for this, so it joins three
+     * full-catalog scans: /products (names), /offers (sku + properties + product_id) and
+     * /offers/stocks (per-warehouse quantity) - roughly 30 upstream requests for the current
+     * catalog size.
      */
     public List<WarehouseStockRowDto> getWarehouseStockReport(long warehouseId) {
         List<KeyCrmProduct> products = fetchAllProducts();
@@ -68,11 +69,7 @@ public class WarehouseStockReportService {
                     .filter(warehouse -> warehouse.id() != null && warehouse.id() == warehouseId)
                     .map(WarehouseStockDto::quantity)
                     .findFirst()
-                    .orElse(null);
-
-            if (quantityInWarehouse == null || quantityInWarehouse.signum() <= 0) {
-                continue;
-            }
+                    .orElse(BigDecimal.ZERO);
 
             List<KeyCrmOfferProperty> properties = offer.properties() == null ? List.of() : offer.properties();
 
