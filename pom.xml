@@ -33,6 +33,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- RestClient support (split out of spring-boot-starter-web as of Boot 4.x) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-restclient</artifactId>
+        </dependency>
+
         <!-- JPA + Hibernate -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -92,6 +98,12 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>3.0.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.5.1</version>
         </dependency>
 
         <!-- Tests -->

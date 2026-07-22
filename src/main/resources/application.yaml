@@ -61,3 +61,8 @@ spring:
 
 server:
   port: 8080
+
+keycrm:
+  base-url: https://openapi.keycrm.app/v1
+  # Prefer setting KEYCRM_API_TOKEN as an environment variable instead of committing real tokens.
+  api-token: ${KEYCRM_API_TOKEN}

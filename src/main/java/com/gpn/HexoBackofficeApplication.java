@@ -1,9 +1,11 @@
-package com.gpn.leads;
+package com.gpn;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication
+@ConfigurationPropertiesScan
 public class HexoBackofficeApplication {
 
     public static void main(String[] args) {
