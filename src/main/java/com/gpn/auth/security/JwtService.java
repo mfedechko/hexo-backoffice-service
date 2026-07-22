@@ -1,8 +1,8 @@
-package com.gpn.leads.security;
+package com.gpn.auth.security;
 
-import com.gpn.leads.model.PermissionEntity;
-import com.gpn.leads.model.RoleEntity;
-import com.gpn.leads.model.UserEntity;
+import com.gpn.auth.model.PermissionEntity;
+import com.gpn.auth.model.RoleEntity;
+import com.gpn.auth.model.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

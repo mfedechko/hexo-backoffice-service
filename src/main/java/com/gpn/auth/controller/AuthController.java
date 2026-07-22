@@ -1,11 +1,11 @@
-package com.gpn.leads.controller;
+package com.gpn.auth.controller;
 
-import com.gpn.leads.model.RoleEntity;
-import com.gpn.leads.model.UserEntity;
-import com.gpn.leads.model.dto.LoginRequest;
-import com.gpn.leads.model.dto.LoginResponse;
-import com.gpn.leads.repository.UserRepository;
-import com.gpn.leads.security.JwtService;
+import com.gpn.auth.model.RoleEntity;
+import com.gpn.auth.model.UserEntity;
+import com.gpn.auth.model.dto.LoginRequest;
+import com.gpn.auth.model.dto.LoginResponse;
+import com.gpn.auth.repository.UserRepository;
+import com.gpn.auth.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

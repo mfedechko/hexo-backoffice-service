@@ -1,4 +1,4 @@
-package com.gpn.leads.model.dto;
+package com.gpn.auth.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

@@ -1,4 +1,4 @@
-package com.gpn.leads.security;
+package com.gpn.auth.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,7 +1,7 @@
-package com.gpn.leads.config;
+package com.gpn.auth.config;
 
-import com.gpn.leads.repository.UserRepository;
-import com.gpn.leads.security.JwtAuthenticationFilter;
+import com.gpn.auth.repository.UserRepository;
+import com.gpn.auth.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
