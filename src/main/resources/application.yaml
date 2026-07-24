@@ -59,7 +59,8 @@ spring:
       on-profile: prod
 
   datasource:
-    url: jdbc:postgresql://YOUR_PROD_HOST:5432/backoffice
+    # Postgres runs in Docker on the same VPS, bound to 127.0.0.1 only
+    url: jdbc:postgresql://localhost:5432/backoffice
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver

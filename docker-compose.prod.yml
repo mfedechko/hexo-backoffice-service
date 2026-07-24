@@ -1,0 +1,10 @@
+services:
+  postgres:
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    # !override replaces the base file's ports list instead of merging with it -
+    # otherwise both "5432:5432" (base) and "127.0.0.1:5432:5432" (this file) get
+    # applied together and conflict on the same host port.
+    ports: !override
+      - "127.0.0.1:5432:5432"
