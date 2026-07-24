@@ -33,57 +33,57 @@ import java.util.Map;
 @Tag(name = "Leads", description = "Leads submitted through the landing page contact form")
 public class LeadController {
 
-    private final LeadService leadService;
-
-    @PostMapping
-    @Operation(
-            summary = "Submit a new lead",
-            description = "Called by the landing page form when a visitor submits their details."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Lead created"),
-            @ApiResponse(responseCode = "400", description = "Validation failed", content = @Content)
-    })
-    public ResponseEntity<?> createLead(@Valid @RequestBody final CreateLeadRequest request) {
-        final var lead = leadService.createNewLead(request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(Map.of(
-                    "id",      lead.getId(),
-                    "message", "Дякуємо! Ми зв'яжемося з вами найближчим часом."
-                ));
-    }
-
-    @GetMapping
-    @Operation(
-            summary = "List all leads",
-            description = "Internal endpoint — returns all submitted leads, newest first. "
-                    + "Secure this with Spring Security before going to production."
-    )
-    @ApiResponse(responseCode = "200", description = "Leads returned")
-    public ResponseEntity<List<LeadResponseDto>> getAllLeads() {
-        return ResponseEntity.ok(leadService.getAllLeads());
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a lead by ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lead found"),
-            @ApiResponse(responseCode = "404", description = "Lead not found", content = @Content)
-    })
-    public ResponseEntity<LeadResponseDto> getLeadById(
-            @Parameter(description = "Lead ID") @PathVariable Long id) {
-        return ResponseEntity.ok(leadService.getLead(id));
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Update a lead by ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lead found"),
-            @ApiResponse(responseCode = "404", description = "Lead not found", content = @Content)
-    })
-    public ResponseEntity<LeadResponseDto> updateLeadStatus(
-            @Parameter(description = "Lead ID") @PathVariable Long id,  @RequestBody ChangeLeadStatusRequest request) {
-        return ResponseEntity.ok(leadService.updateStatus(id, request));
-    }
+//    private final LeadService leadService;
+//
+//    @PostMapping
+//    @Operation(
+//            summary = "Submit a new lead",
+//            description = "Called by the landing page form when a visitor submits their details."
+//    )
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "201", description = "Lead created"),
+//            @ApiResponse(responseCode = "400", description = "Validation failed", content = @Content)
+//    })
+//    public ResponseEntity<?> createLead(@Valid @RequestBody final CreateLeadRequest request) {
+//        final var lead = leadService.createNewLead(request);
+//        return ResponseEntity
+//                .status(HttpStatus.CREATED)
+//                .body(Map.of(
+//                    "id",      lead.getId(),
+//                    "message", "Дякуємо! Ми зв'яжемося з вами найближчим часом."
+//                ));
+//    }
+//
+//    @GetMapping
+//    @Operation(
+//            summary = "List all leads",
+//            description = "Internal endpoint — returns all submitted leads, newest first. "
+//                    + "Secure this with Spring Security before going to production."
+//    )
+//    @ApiResponse(responseCode = "200", description = "Leads returned")
+//    public ResponseEntity<List<LeadResponseDto>> getAllLeads() {
+//        return ResponseEntity.ok(leadService.getAllLeads());
+//    }
+//
+//    @GetMapping("/{id}")
+//    @Operation(summary = "Get a lead by ID")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "Lead found"),
+//            @ApiResponse(responseCode = "404", description = "Lead not found", content = @Content)
+//    })
+//    public ResponseEntity<LeadResponseDto> getLeadById(
+//            @Parameter(description = "Lead ID") @PathVariable Long id) {
+//        return ResponseEntity.ok(leadService.getLead(id));
+//    }
+//
+//    @PutMapping("/{id}")
+//    @Operation(summary = "Update a lead by ID")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "Lead found"),
+//            @ApiResponse(responseCode = "404", description = "Lead not found", content = @Content)
+//    })
+//    public ResponseEntity<LeadResponseDto> updateLeadStatus(
+//            @Parameter(description = "Lead ID") @PathVariable Long id,  @RequestBody ChangeLeadStatusRequest request) {
+//        return ResponseEntity.ok(leadService.updateStatus(id, request));
+//    }
 }
