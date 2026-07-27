@@ -9,6 +9,7 @@ import com.gpn.crm.keycrm.dto.KeyCrmOfferProperty;
 import com.gpn.crm.keycrm.dto.KeyCrmPage;
 import com.gpn.crm.keycrm.dto.KeyCrmProduct;
 import com.gpn.crm.product.dto.OfferPropertyDto;
+import com.gpn.crm.report.dto.WarehouseStockReport;
 import com.gpn.crm.report.dto.WarehouseStockRowDto;
 import com.gpn.crm.stock.dto.WarehouseStockDto;
 import com.gpn.crm.stock.service.StockService;
@@ -51,7 +52,7 @@ public class WarehouseStockReportService {
      * /offers/stocks (per-warehouse quantity) - roughly 30 upstream requests for the current
      * catalog size.
      */
-    public List<WarehouseStockRowDto> getWarehouseStockReport(long warehouseId) {
+    public WarehouseStockReport getWarehouseStockReport(long warehouseId) {
         List<KeyCrmProduct> products = fetchAllProducts();
 
         Map<Long, String> productNameById = products.stream()
@@ -97,7 +98,14 @@ public class WarehouseStockReportService {
 
         rows.sort(Comparator.comparing(WarehouseStockRowDto::quantityInWarehouse).reversed());
 
-        return rows;
+        String warehouseName = warehousesByOfferId.values().stream()
+                .flatMap(List::stream)
+                .filter(warehouse -> warehouse.id() != null && warehouse.id() == warehouseId && warehouse.name() != null)
+                .map(WarehouseStockDto::name)
+                .findFirst()
+                .orElse("warehouse-" + warehouseId);
+
+        return new WarehouseStockReport(warehouseName, rows);
     }
 
     private List<KeyCrmProduct> fetchAllProducts() {
