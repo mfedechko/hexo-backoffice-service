@@ -10,12 +10,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Entity
-@Table(name = "activity_logs")
+@Table(name = "log_history")
 @Getter
+@Setter
 public class LogHistoryEntity {
 
     @Id
@@ -29,8 +34,8 @@ public class LogHistoryEntity {
     @Column(nullable = false, length = 20)
     private LogHistoryModule module;
 
-    @Column(name = "object_id", nullable = false)
-    private Long objectId;
+    @Column(name = "object_id")
+    private String objectId;
 
     @Column(nullable = false, length = 50)
     private String action;
@@ -38,15 +43,9 @@ public class LogHistoryEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    protected LogHistoryEntity() {
-    }
-
-    public LogHistoryEntity(final Long userId, final LogHistoryModule module, final Long objectId, final String action) {
-        this.userId = userId;
-        this.module = module;
-        this.objectId = objectId;
-        this.action = action;
-    }
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, String> details;
 
     @PrePersist
     protected void onCreate() {

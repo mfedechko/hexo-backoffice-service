@@ -1,5 +1,6 @@
 package com.gpn.loghistory.mapper;
 
+import com.gpn.loghistory.model.LogHistoryAction;
 import com.gpn.loghistory.model.LogHistoryEntity;
 import com.gpn.loghistory.model.dto.LogHistoryResponseDto;
 import lombok.experimental.UtilityClass;
@@ -13,7 +14,8 @@ public class LogHistoryMapper {
                 entity.getUserId(),
                 entity.getModule().name(),
                 entity.getObjectId(),
-                entity.getAction(),
+                LogHistoryAction.valueOf(entity.getAction()),
+                entity.getDetails(),
                 entity.getCreatedAt());
     }
 }

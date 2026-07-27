@@ -1,8 +1,7 @@
 package com.gpn.crm.report.controller;
 
-import com.gpn.crm.report.dto.WarehouseStockReport;
+import com.gpn.crm.report.dto.WarehouseStockExcelExport;
 import com.gpn.crm.report.dto.WarehouseStockRowDto;
-import com.gpn.crm.report.excel.WarehouseStockExcelWriter;
 import com.gpn.crm.report.service.WarehouseStockReportService;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -23,16 +22,10 @@ public class WarehouseStockReportController {
     private static final MediaType XLSX_MEDIA_TYPE =
             MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-    /** Characters that aren't safe across filesystems/browsers in a download filename. */
-    private static final String UNSAFE_FILENAME_CHARS = "[\\\\/:*?\"<>|]";
-
     private final WarehouseStockReportService warehouseStockReportService;
-    private final WarehouseStockExcelWriter warehouseStockExcelWriter;
 
-    public WarehouseStockReportController(WarehouseStockReportService warehouseStockReportService,
-                                          WarehouseStockExcelWriter warehouseStockExcelWriter) {
+    public WarehouseStockReportController(WarehouseStockReportService warehouseStockReportService) {
         this.warehouseStockReportService = warehouseStockReportService;
-        this.warehouseStockExcelWriter = warehouseStockExcelWriter;
     }
 
     @GetMapping
@@ -42,21 +35,15 @@ public class WarehouseStockReportController {
 
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportReport(@RequestParam(defaultValue = "4") long warehouseId) {
-        WarehouseStockReport report = warehouseStockReportService.getWarehouseStockReport(warehouseId);
-        byte[] excelBytes = warehouseStockExcelWriter.write(report.rows());
+        WarehouseStockExcelExport export = warehouseStockReportService.generateExcelReport(warehouseId);
 
         ContentDisposition contentDisposition = ContentDisposition.attachment()
-                .filename(filenameFor(report.warehouseName()), StandardCharsets.UTF_8)
+                .filename(export.filename(), StandardCharsets.UTF_8)
                 .build();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
                 .contentType(XLSX_MEDIA_TYPE)
-                .body(excelBytes);
-    }
-
-    private String filenameFor(String warehouseName) {
-        String sanitized = warehouseName.replaceAll(UNSAFE_FILENAME_CHARS, "").trim();
-        return "%s.xlsx".formatted(sanitized.isEmpty() ? warehouseName : sanitized);
+                .body(export.content());
     }
 }

@@ -1,6 +1,8 @@
 package com.gpn.loghistory.service;
 
+import com.gpn.auth.security.AuthDetailsHolder;
 import com.gpn.loghistory.mapper.LogHistoryMapper;
+import com.gpn.loghistory.model.LogHistoryAction;
 import com.gpn.loghistory.model.LogHistoryEntity;
 import com.gpn.loghistory.model.LogHistoryModule;
 import com.gpn.loghistory.model.dto.LogHistoryFilterRequest;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -20,16 +23,23 @@ public class LogHistoryService {
 
     private final LogHistoryRepository logHistoryRepository;
 
-    @Transactional
-    public void log(final Long userId, final LogHistoryModule module, final Long objectId, final String action) {
-        logHistoryRepository.save(new LogHistoryEntity(userId, module, objectId, action));
-    }
-
     @Transactional(readOnly = true)
     public List<LogHistoryResponseDto> getActivityLogs(final LogHistoryFilterRequest filter) {
         final var spec = LogHistorySpecification.filter(filter);
         return logHistoryRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt")).stream()
                 .map(LogHistoryMapper::toDto)
                 .toList();
+    }
+
+    @Transactional
+    public void logReportGeneration(final long warehouseId, final String reportName) {
+        final var currentUser = AuthDetailsHolder.getCurrentUser();
+        final var log = new LogHistoryEntity();
+        log.setUserId(currentUser.id());
+        log.setModule(LogHistoryModule.REPORT);
+        log.setObjectId(warehouseId);
+        log.setAction(LogHistoryAction.GENERATE.name());
+        log.setDetails(Map.of("reportName", reportName));
+        logHistoryRepository.save(log);
     }
 }
