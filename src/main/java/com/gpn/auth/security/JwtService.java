@@ -8,24 +8,22 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Set;
 
 @Service
 public class JwtService {
 
+    private static final String CLAIM_USER_ID = "userId";
+    private static final String CLAIM_EMAIL = "email";
+    private static final String CLAIM_DEPARTMENT_ID = "departmentId";
     private static final String CLAIM_ROLES = "roles";
     private static final String CLAIM_PERMISSIONS = "permissions";
 
@@ -51,31 +49,40 @@ public class JwtService {
                 .distinct()
                 .toList();
 
-        return Jwts.builder()
+        final var builder = Jwts.builder()
                 .subject(user.getUsername())
+                .claim(CLAIM_USER_ID, user.getId())
+                .claim(CLAIM_EMAIL, user.getEmail())
                 .claim(CLAIM_ROLES, roles)
                 .claim(CLAIM_PERMISSIONS, permissions)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(expirationMinutes * 60)))
-                .signWith(signingKey)
-                .compact();
-    }
+                .signWith(signingKey);
 
-    public String extractUsername(final String token) {
-        return parseClaims(token).getSubject();
+        if (user.getDepartmentId() != null) {
+            builder.claim(CLAIM_DEPARTMENT_ID, user.getDepartmentId());
+        }
+
+        return builder.compact();
     }
 
     @SuppressWarnings("unchecked")
-    public Collection<GrantedAuthority> extractAuthorities(final String token) {
+    public AuthDetails extractAuthDetails(final String token) {
         final Claims claims = parseClaims(token);
         final List<String> roles = claims.get(CLAIM_ROLES, List.class);
         final List<String> permissions = claims.get(CLAIM_PERMISSIONS, List.class);
 
-        return Stream.concat(
-                        Optional.ofNullable(roles).orElse(List.of()).stream(),
-                        Optional.ofNullable(permissions).orElse(List.of()).stream())
-                .<GrantedAuthority>map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        return new AuthDetails(
+                toLong(claims.get(CLAIM_USER_ID)),
+                claims.getSubject(),
+                claims.get(CLAIM_EMAIL, String.class),
+                toLong(claims.get(CLAIM_DEPARTMENT_ID)),
+                Set.copyOf(Optional.ofNullable(roles).orElse(List.of())),
+                Set.copyOf(Optional.ofNullable(permissions).orElse(List.of())));
+    }
+
+    private static Long toLong(final Object claim) {
+        return claim == null ? null : ((Number) claim).longValue();
     }
 
     public boolean isTokenValid(final String token) {
