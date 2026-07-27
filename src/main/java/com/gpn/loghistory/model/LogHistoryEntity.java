@@ -1,4 +1,4 @@
-package com.gpn.activitylog.model;
+package com.gpn.loghistory.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "activity_logs")
 @Getter
-public class ActivityLogEntity {
+public class LogHistoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,7 @@ public class ActivityLogEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private ActivityModule module;
+    private LogHistoryModule module;
 
     @Column(name = "object_id", nullable = false)
     private Long objectId;
@@ -38,10 +38,10 @@ public class ActivityLogEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    protected ActivityLogEntity() {
+    protected LogHistoryEntity() {
     }
 
-    public ActivityLogEntity(final Long userId, final ActivityModule module, final Long objectId, final String action) {
+    public LogHistoryEntity(final Long userId, final LogHistoryModule module, final Long objectId, final String action) {
         this.userId = userId;
         this.module = module;
         this.objectId = objectId;

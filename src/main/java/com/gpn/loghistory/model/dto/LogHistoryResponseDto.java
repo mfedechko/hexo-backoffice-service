@@ -1,8 +1,8 @@
-package com.gpn.activitylog.model.dto;
+package com.gpn.loghistory.model.dto;
 
 import java.time.LocalDateTime;
 
-public record ActivityLogResponseDto(
+public record LogHistoryResponseDto(
         Long id,
         Long userId,
         String module,

@@ -1,7 +1,7 @@
-package com.gpn.activitylog.repository;
+package com.gpn.loghistory.repository;
 
-import com.gpn.activitylog.model.ActivityLogEntity;
-import com.gpn.activitylog.model.dto.ActivityLogFilterRequest;
+import com.gpn.loghistory.model.LogHistoryEntity;
+import com.gpn.loghistory.model.dto.LogHistoryFilterRequest;
 import jakarta.persistence.criteria.Predicate;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @UtilityClass
-public class ActivityLogSpecifications {
+public class LogHistorySpecification {
 
-    public static Specification<ActivityLogEntity> filter(final ActivityLogFilterRequest request) {
+    public static Specification<LogHistoryEntity> filter(final LogHistoryFilterRequest request) {
         return (root, query, cb) -> {
             final List<Predicate> predicates = new ArrayList<>();
 

@@ -1,12 +1,12 @@
-package com.gpn.activitylog.model.dto;
+package com.gpn.loghistory.model.dto;
 
-import com.gpn.activitylog.model.ActivityModule;
+import com.gpn.loghistory.model.LogHistoryModule;
 
 import java.time.LocalDateTime;
 
-public record ActivityLogFilterRequest(
+public record LogHistoryFilterRequest(
         Long userId,
-        ActivityModule module,
+        LogHistoryModule module,
         Long objectId,
         String action,
         LocalDateTime dateFrom,
