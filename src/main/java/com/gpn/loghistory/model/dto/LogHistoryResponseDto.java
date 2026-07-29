@@ -9,7 +9,7 @@ public record LogHistoryResponseDto(
         Long id,
         Long userId,
         String module,
-        Long objectId,
+        String objectId,
         LogHistoryAction action,
         Map<String, String> details,
         LocalDateTime createdAt) {

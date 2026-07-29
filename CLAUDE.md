@@ -20,26 +20,27 @@ mvn spring-boot:run
 mvn test
 
 # Run a single test class
-mvn test -Dtest=LeadEntityControllerTest
+mvn test -Dtest=<TestClassName>
 
 # Run a single test method
-mvn test -Dtest=LeadEntityControllerTest#postLead_validPayload_returns201
+mvn test -Dtest=<TestClassName>#<testMethodName>
 ```
 
 Swagger UI is available at `/swagger-ui.html` (OpenAPI JSON at `/v3/api-docs`) once the app is running.
 
-Note: `mvn test` currently fails to *compile* the test sources in this environment (`LeadEntityControllerTest` — `spring-boot-test-autoconfigure` / `AutoConfigureMockMvc` not resolving from the local `.m2` cache). This is pre-existing and unrelated to application code changes; verify behavior by running the app and hitting endpoints with `curl` when the test module won't compile.
+Note: `src/test/java` currently has no test sources at all (just empty package directories) — `mvn test` trivially passes. There is no working example test to copy from; when adding the first one, `spring-boot-starter-test` is already on the classpath.
 
 ## Architecture
 
-Single-module Spring Boot 4.1 / Java 25 / Spring Security 7.1 REST service, package root `com.gpn`. Three feature packages share the same app: `com.gpn.leads` (public lead-intake API for a landing page), `com.gpn.auth` (JWT-protected backoffice auth layer with DB-backed RBAC — security config, JWT issuing/validation, and RBAC entities/repositories all live here since they're used app-wide, not just by `leads`), and `com.gpn.crm` (KeyCRM-backed product/category/stock/report endpoints for the backoffice).
+Single-module Spring Boot 4.1 / Java 25 / Spring Security 7.1 REST service, package root `com.gpn`. Four feature packages share the same app: `com.gpn.leads` (public lead-intake API for a landing page), `com.gpn.auth` (JWT-protected backoffice auth layer with DB-backed RBAC — security config, JWT issuing/validation, and RBAC entities/repositories all live here since they're used app-wide, not just by `leads`), `com.gpn.crm` (KeyCRM-backed product/category/stock/warehouse/report endpoints for the backoffice), and `com.gpn.loghistory` (append-only audit trail written to by other features and exposed as its own read endpoint).
 
-**Package layout** (flat, no further sub-packages within a feature): each feature package has its own `config/`, `controller/`, `model/` (+ `model/dto/`), `repository/`, `security/`, `service/` as needed. `com.gpn.leads` additionally has `exception/`, `mapper/`, `web/` (request logging) and hosts the app-wide `GlobalExceptionHandler` and `OpenApiConfig`. `com.gpn.crm` has its own sub-feature packages (`category/`, `product/`, `stock/`, `report/`, `keycrm/` for the upstream client) plus `config/` (KeyCRM `RestClient`/properties) and `web/` (`ApiExceptionHandler` for upstream KeyCRM failures).
+**Package layout** (flat, no further sub-packages within a feature): each feature package has its own `config/`, `controller/`, `model/` (+ `model/dto/`), `repository/`, `security/`, `service/` as needed. `com.gpn.leads` additionally has `exception/`, `mapper/`, `web/` (request logging) and hosts the app-wide `GlobalExceptionHandler` and `OpenApiConfig`. `com.gpn.crm` has its own sub-feature packages (`category/`, `product/`, `stock/`, `warehouse/`, `report/`, `keycrm/` for the upstream client) plus `config/` (KeyCRM `RestClient`/properties) and `web/` (`ApiExceptionHandler` for upstream KeyCRM failures). `com.gpn.loghistory` follows the same `controller/`/`mapper/`/`model/`(`+model/dto/`)/`repository/`/`service/` shape as `leads`.
 
 ### Schema & migrations (Flyway, `src/main/resources/db/migration/`)
 
 - `V1__auth_rbac_schema.sql` — `permissions`, `roles`, `roles_permissions`, `users`, `users_roles`. Seeds baseline roles/permissions and a default `admin`/`admin123` user (`ROLE_ADMIN`).
 - `V2__add_leads_table.sql` — `leads` table.
+- `V3__add_log_history_table.sql` — `log_history` table (see `com.gpn.loghistory` below), FK'd to `users`.
 
 `spring.jpa.hibernate.ddl-auto=validate` — Flyway owns the schema; Hibernate only validates entities match it. New columns/tables require a new `V{n}__*.sql` migration, not entity changes alone.
 
@@ -58,7 +59,13 @@ Straightforward CRUD-ish flow: `LeadController` → `LeadService` (`@Transaction
 
 ### CRM feature (`com.gpn.crm`)
 
-Read-only backoffice views over KeyCRM data, all requiring authentication (no explicit security matchers needed — see above). `category/`, `product/`, `stock/`, `report/` each follow controller → service → (mapper) against `keycrm/client/*` (`RestClient`-based clients, one per KeyCRM resource) and `keycrm/dto/*` (raw KeyCRM API shapes, mapped to this service's own DTOs before leaving the service layer). `config/KeyCrmClientConfig` builds the shared `RestClient` bean and fails fast at startup if `keycrm.api-token` is unset or still contains a literal `${...}` placeholder (Spring's relaxed binding doesn't fail on an unresolved env var by itself). `keycrm.base-url`/`keycrm.api-token` are set once in the shared (non-profile-specific) section of `application.yaml` — don't move them under a single profile's `---` document, since that silently breaks the KeyCRM client under the other profile(s). `web/ApiExceptionHandler` translates upstream `RestClientResponseException`/`ResourceAccessException` into passthrough 4xx or 502/504 responses for callers.
+Read-only backoffice views over KeyCRM data, all requiring authentication (no explicit security matchers needed — see above). `category/`, `product/`, `stock/`, `warehouse/`, `report/` each follow controller → service → (mapper) against `keycrm/client/*` (`RestClient`-based clients, one per KeyCRM resource) and `keycrm/dto/*` (raw KeyCRM API shapes, mapped to this service's own DTOs before leaving the service layer). `config/KeyCrmClientConfig` builds the shared `RestClient` bean and fails fast at startup if `keycrm.api-token` is unset or still contains a literal `${...}` placeholder (Spring's relaxed binding doesn't fail on an unresolved env var by itself). `keycrm.base-url`/`keycrm.api-token` are set once in the shared (non-profile-specific) section of `application.yaml` — don't move them under a single profile's `---` document, since that silently breaks the KeyCRM client under the other profile(s). `web/ApiExceptionHandler` translates upstream `RestClientResponseException`/`ResourceAccessException` into passthrough 4xx or 502/504 responses for callers.
+
+KeyCRM has no endpoint that returns warehouses directly, nor one that lists offers with stock at zero: `warehouse/WarehouseService` derives the warehouse list by paging through the full `/offers/stocks` catalog and deduping the warehouse id/name nested in each item; `report/WarehouseStockReportService` builds its per-warehouse Excel export (`report/excel/WarehouseStockExcelWriter`) by joining three separate full-catalog scans (`/products`, `/offers`, `/offers/stocks`). Both patterns are the correct way to answer "give me all X, including zero-stock/unlisted ones" against this API — don't assume a missing item means a missing KeyCRM endpoint. `WarehouseStockReportService` calls `loghistory.LogHistoryService.logReportGeneration(...)` after generating each report, so `com.gpn.crm` depends on `com.gpn.loghistory` (not the other way around).
+
+### Log history (`com.gpn.loghistory`)
+
+Generic, append-only audit trail (`log_history` table, `V3__add_log_history_table.sql`) — not specific to any one feature. `LogHistoryEntity` records `userId`, a `module` enum (`LogHistoryModule`: `REPORT`, `LEAD`, `USER`), a free-text `action` (mirrors `LogHistoryAction`: `GENERATE`, `ADD`, `REMOVE`, `UPDATE`, but the column/mapper treat it as a plain string, not a JPA `@Enumerated`), an `objectId` string, and a `details` `jsonb` column mapped to `Map<String, String>`. Entries are read via `GET /api/activity-logs`, filtered through `LogHistorySpecification` (a `JpaSpecificationExecutor` spec built from `LogHistoryFilterRequest`) — note the endpoint path (`activity-logs`) and the table/package name (`log_history`/`loghistory`) diverge, a holdover from the feature's original "activity log" naming. There's currently one write path, `LogHistoryService.logReportGeneration`, called from `crm.report.WarehouseStockReportService` and reading the acting user via `auth.security.AuthDetailsHolder.getCurrentUser()`; new call sites should follow that pattern (resolve the user from `AuthDetailsHolder`, don't thread it through as a parameter).
 
 ### Error handling
 

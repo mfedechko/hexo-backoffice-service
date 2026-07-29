@@ -37,7 +37,7 @@ public class LogHistoryService {
         final var log = new LogHistoryEntity();
         log.setUserId(currentUser.id());
         log.setModule(LogHistoryModule.REPORT);
-        log.setObjectId(warehouseId);
+        log.setObjectId(String.valueOf(warehouseId));
         log.setAction(LogHistoryAction.GENERATE.name());
         log.setDetails(Map.of("reportName", reportName));
         logHistoryRepository.save(log);

@@ -23,6 +23,7 @@ public class LeadService {
     @Transactional
     public LeadResponseDto createNewLead(final CreateLeadRequest request) {
         final var lead = new LeadEntity();
+        lead.setType(request.getType().name());
         lead.setName(request.getName());
         lead.setPhone(request.getPhone());
         lead.setComment(request.getComment());
