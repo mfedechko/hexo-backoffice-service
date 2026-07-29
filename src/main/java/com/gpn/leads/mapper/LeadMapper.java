@@ -1,6 +1,7 @@
 package com.gpn.leads.mapper;
 
 import com.gpn.leads.model.LeadEntity;
+import com.gpn.leads.model.LeadType;
 import com.gpn.leads.model.dto.LeadResponseDto;
 import lombok.experimental.UtilityClass;
 
@@ -11,6 +12,7 @@ public class LeadMapper {
         final var response = new LeadResponseDto();
         response.setId(entity.getId());
         response.setName(entity.getName());
+        response.setType(LeadType.valueOf(entity.getType()));
         response.setPhone(entity.getPhone());
         response.setComment(entity.getComment());
         response.setStatus(entity.getStatus().name());

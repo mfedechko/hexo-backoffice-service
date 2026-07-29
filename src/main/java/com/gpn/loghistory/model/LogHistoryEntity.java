@@ -1,4 +1,4 @@
-package com.gpn.leads.model;
+package com.gpn.loghistory.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,52 +8,47 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Entity
-@Table(name = "leads")
+@Table(name = "log_history")
 @Getter
 @Setter
-public class LeadEntity {
+public class LogHistoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String name;
-
-    @Column(nullable = false, length = 32)
-    private String type;
-
-    @Column(nullable = false, length = 20)
-    private String phone;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private LeadStatus status;
+    private LogHistoryModule module;
 
-    @Column(nullable = true)
-    private String comment;
+    @Column(name = "object_id")
+    private String objectId;
 
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "DATETIME")
+    @Column(nullable = false, length = 50)
+    private String action;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", columnDefinition = "DATETIME")
-    private LocalDateTime updatedAt;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, String> details;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 }

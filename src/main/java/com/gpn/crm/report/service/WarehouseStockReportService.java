@@ -9,10 +9,14 @@ import com.gpn.crm.keycrm.dto.KeyCrmOfferProperty;
 import com.gpn.crm.keycrm.dto.KeyCrmPage;
 import com.gpn.crm.keycrm.dto.KeyCrmProduct;
 import com.gpn.crm.product.dto.OfferPropertyDto;
+import com.gpn.crm.report.dto.WarehouseStockExcelExport;
 import com.gpn.crm.report.dto.WarehouseStockReport;
 import com.gpn.crm.report.dto.WarehouseStockRowDto;
+import com.gpn.crm.report.excel.WarehouseStockExcelWriter;
 import com.gpn.crm.stock.dto.WarehouseStockDto;
 import com.gpn.crm.stock.service.StockService;
+import com.gpn.loghistory.service.LogHistoryService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +27,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class WarehouseStockReportService {
 
     /** KeyCRM's max page size, used to fetch every product/offer in as few requests as possible. */
@@ -30,19 +35,26 @@ public class WarehouseStockReportService {
 
     private static final String COATING_PROPERTY_NAME = "Покриття";
 
+    /** Characters that aren't safe across filesystems/browsers in a download filename. */
+    private static final String UNSAFE_FILENAME_CHARS = "[\\\\/:*?\"<>|]";
+
     private final KeyCrmProductClient keyCrmProductClient;
     private final KeyCrmOfferClient keyCrmOfferClient;
     private final StockService stockService;
     private final CategoryService categoryService;
+    private final WarehouseStockExcelWriter warehouseStockExcelWriter;
+    private final LogHistoryService logHistoryService;
 
-    public WarehouseStockReportService(KeyCrmProductClient keyCrmProductClient,
-                                       KeyCrmOfferClient keyCrmOfferClient,
-                                       StockService stockService,
-                                       CategoryService categoryService) {
-        this.keyCrmProductClient = keyCrmProductClient;
-        this.keyCrmOfferClient = keyCrmOfferClient;
-        this.stockService = stockService;
-        this.categoryService = categoryService;
+    public WarehouseStockExcelExport generateExcelReport(long warehouseId) {
+        WarehouseStockReport report = getWarehouseStockReport(warehouseId);
+        byte[] content = warehouseStockExcelWriter.write(report.rows());
+        logHistoryService.logReportGeneration(warehouseId, report.warehouseName());
+        return new WarehouseStockExcelExport(filenameFor(report.warehouseName()), content);
+    }
+
+    private String filenameFor(String warehouseName) {
+        String sanitized = warehouseName.replaceAll(UNSAFE_FILENAME_CHARS, "").trim();
+        return "%s.xlsx".formatted(sanitized.isEmpty() ? warehouseName : sanitized);
     }
 
     /**

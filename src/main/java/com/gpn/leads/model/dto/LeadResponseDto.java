@@ -1,5 +1,6 @@
 package com.gpn.leads.model.dto;
 
+import com.gpn.leads.model.LeadType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +17,9 @@ public class LeadResponseDto {
 
     @Schema(description = "Full name of the lead", example = "Jane Doe")
     private String name;
+
+    @Schema(description = "Lead type", example = "LASER_SHARK")
+    private LeadType type;
 
     @Schema(description = "Contact phone number", example = "+380501234567")
     private String phone;
