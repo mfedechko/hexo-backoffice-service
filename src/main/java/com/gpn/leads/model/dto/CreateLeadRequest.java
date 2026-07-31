@@ -3,6 +3,7 @@ package com.gpn.leads.model.dto;
 import com.gpn.leads.model.LeadType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import lombok.Setter;
 public class CreateLeadRequest {
 
     @Schema(description = "Lead type", example = "LASER_SHARK")
-    @NotBlank(message = "Lead type is required")
+    @NotNull(message = "Lead type is required")
     private LeadType type;
 
     @Schema(description = "Full name of the lead", example = "Jane Doe", maxLength = 100)
