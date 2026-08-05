@@ -27,7 +27,11 @@ server:
 
 app:
   cors:
-    allowed-origins: https://shchoglagpn.com.ua
+    # shchoglagpn.com.ua редіректить на www-версію (перевірено: https://shchoglagpn.com.ua
+    # -> https://www.shchoglagpn.com.ua), тож браузер шле саме www-Origin для PUT/POST -
+    # без нього бек-офіс отримував "Invalid CORS request" при зміні статусу заявки.
+    # @CrossOrigin розбиває це поле по комі на кілька origin'ів.
+    allowed-origins: https://shchoglagpn.com.ua,https://www.shchoglagpn.com.ua
   security:
     jwt:
       # Override with the JWT_SECRET env var in prod - must be at least 256 bits (32 chars).
