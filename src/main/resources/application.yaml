@@ -27,7 +27,13 @@ server:
 
 app:
   cors:
-    allowed-origins: https://shchoglagpn.com.ua
+    # Бек-офіс (React SPA, hexo-backoffice-ui) реально живе на
+    # backoffice.gun-power.com.ua - попереднє значення (shchoglagpn.com.ua)
+    # було доменом зовсім іншого лендінгу (щогли) і ніколи не збігалося з
+    # Origin, який шле браузер бек-офісу для PUT/POST, звідси "Invalid CORS
+    # request" при зміні статусу заявки. @CrossOrigin розбиває це поле по
+    # комі на кілька origin'ів.
+    allowed-origins: https://backoffice.gun-power.com.ua
   security:
     jwt:
       # Override with the JWT_SECRET env var in prod - must be at least 256 bits (32 chars).
