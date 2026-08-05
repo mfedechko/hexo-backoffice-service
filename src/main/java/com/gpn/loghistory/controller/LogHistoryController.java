@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/activity-logs")
+@RequestMapping("/api/log-history")
 public class LogHistoryController {
 
     private final LogHistoryService logHistoryService;
@@ -23,7 +23,7 @@ public class LogHistoryController {
     }
 
     @GetMapping
-    public List<LogHistoryResponseDto> getActivityLogs(
+    public List<LogHistoryResponseDto> getLogHistory(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) LogHistoryModule module,
             @RequestParam(required = false) Long objectId,
@@ -31,7 +31,7 @@ public class LogHistoryController {
             @RequestParam(required = false) LocalDateTime dateFrom,
             @RequestParam(required = false) LocalDateTime dateTo
     ) {
-        return logHistoryService.getActivityLogs(
+        return logHistoryService.getLogHistory(
                 new LogHistoryFilterRequest(userId, module, objectId, action, dateFrom, dateTo));
     }
 }

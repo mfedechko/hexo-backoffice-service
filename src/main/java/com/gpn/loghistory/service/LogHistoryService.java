@@ -26,7 +26,7 @@ public class LogHistoryService {
     private final LogHistoryRepository logHistoryRepository;
 
     @Transactional(readOnly = true)
-    public List<LogHistoryResponseDto> getActivityLogs(final LogHistoryFilterRequest filter) {
+    public List<LogHistoryResponseDto> getLogHistory(final LogHistoryFilterRequest filter) {
         final var spec = LogHistorySpecification.filter(filter);
         return logHistoryRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt")).stream()
                 .map(LogHistoryMapper::toDto)
@@ -37,6 +37,7 @@ public class LogHistoryService {
     public void logReportGeneration(final long warehouseId, final String reportName) {
         final var log = createLogWithUserFields();
         log.setModule(LogHistoryModule.REPORT);
+        log.setUserId(-1L);
         log.setObjectId(String.valueOf(warehouseId));
         log.setAction(LogHistoryAction.GENERATE.name());
         log.setDetails(Map.of("reportName", reportName));
