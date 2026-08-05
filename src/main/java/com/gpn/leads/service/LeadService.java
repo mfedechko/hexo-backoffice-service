@@ -8,6 +8,7 @@ import com.gpn.leads.model.dto.ChangeLeadStatusRequest;
 import com.gpn.leads.model.dto.CreateLeadRequest;
 import com.gpn.leads.model.dto.LeadResponseDto;
 import com.gpn.leads.repository.LeadRepository;
+import com.gpn.loghistory.service.LogHistoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import java.util.List;
 public class LeadService {
 
     private final LeadRepository leadRepository;
+    private final LogHistoryService logHistoryService;
 
     @Transactional
     public LeadResponseDto createNewLead(final CreateLeadRequest request) {
@@ -29,6 +31,7 @@ public class LeadService {
         lead.setComment(request.getComment());
         lead.setStatus(LeadStatus.CREATED);
         final var saved = leadRepository.save(lead);
+        logHistoryService.logLeadCreation(saved.getId(), request.getType());
         return LeadMapper.toDto(saved);
     }
 
@@ -50,7 +53,9 @@ public class LeadService {
     public LeadResponseDto updateStatus(final Long id, final ChangeLeadStatusRequest request) {
         final var lead = leadRepository.findById(id)
                 .orElseThrow(() -> new LeadNotFoundException("Lead not found"));
+        final var currentStatus = lead.getStatus();
         lead.setStatus(request.getNewStatus());
+        logHistoryService.logLeadStatusChange(id, currentStatus, request.getNewStatus());
         leadRepository.saveAndFlush(lead);
         return LeadMapper.toDto(lead);
     }
