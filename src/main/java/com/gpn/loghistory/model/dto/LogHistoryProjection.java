@@ -1,16 +1,16 @@
 package com.gpn.loghistory.model.dto;
 
-import com.gpn.loghistory.model.LogHistoryAction;
+import com.gpn.loghistory.model.LogHistoryModule;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public record LogHistoryResponseDto(
+public record LogHistoryProjection(
         Long id,
         String username,
-        String module,
+        LogHistoryModule module,
         String objectId,
-        LogHistoryAction action,
+        String action,
         Map<String, String> details,
         LocalDateTime createdAt) {
 }

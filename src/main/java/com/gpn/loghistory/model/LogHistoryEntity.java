@@ -27,6 +27,8 @@ public class LogHistoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // -1 = заявка створена системою (анонімна форма на лендінгу, немає
+    // залогіненого користувача) - реального рядка в users з таким id нема.
     @Column(name = "user_id", nullable = false)
     private Long userId;
 

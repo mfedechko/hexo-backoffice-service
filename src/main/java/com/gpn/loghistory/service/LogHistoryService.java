@@ -23,12 +23,19 @@ import java.util.Map;
 @AllArgsConstructor
 public class LogHistoryService {
 
+    private static final Long SYSTEM_USER_ID = -1L;
+
     private final LogHistoryRepository logHistoryRepository;
 
     @Transactional(readOnly = true)
     public List<LogHistoryResponseDto> getLogHistory(final LogHistoryFilterRequest filter) {
         final var spec = LogHistorySpecification.filter(filter);
-        return logHistoryRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt")).stream()
+        final var ids = logHistoryRepository.findIds(spec, Sort.by(Sort.Direction.DESC, "createdAt"));
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+
+        return logHistoryRepository.findProjectionsByIds(ids).stream()
                 .map(LogHistoryMapper::toDto)
                 .toList();
     }
@@ -37,7 +44,6 @@ public class LogHistoryService {
     public void logReportGeneration(final long warehouseId, final String reportName) {
         final var log = createLogWithUserFields();
         log.setModule(LogHistoryModule.REPORT);
-        log.setUserId(-1L);
         log.setObjectId(String.valueOf(warehouseId));
         log.setAction(LogHistoryAction.GENERATE.name());
         log.setDetails(Map.of("reportName", reportName));
@@ -56,8 +62,10 @@ public class LogHistoryService {
         logHistoryRepository.save(log);
     }
 
+    @Transactional
     public void logLeadCreation(final Long leadId, final LeadType type) {
         final var log = new LogHistoryEntity();
+        log.setUserId(SYSTEM_USER_ID);
         log.setModule(LogHistoryModule.LEAD);
         log.setObjectId(String.valueOf(leadId));
         log.setAction(LogHistoryAction.ADD.name());
