@@ -1,5 +1,6 @@
 package com.gpn.leads.controller;
 
+import com.gpn.employee.exception.EmployeeNotFoundException;
 import com.gpn.leads.exception.LeadNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(LeadNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleLeadNotFound(LeadNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEmployeeNotFound(EmployeeNotFoundException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(Map.of("message", ex.getMessage()));
