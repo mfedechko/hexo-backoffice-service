@@ -6,9 +6,12 @@ import com.gpn.employee.model.EmployeeEntity;
 import com.gpn.employee.model.EmployeeStatus;
 import com.gpn.employee.model.dto.CreateEmployeeRequest;
 import com.gpn.employee.model.dto.EmployeeDto;
+import com.gpn.employee.model.dto.EmployeeFilterRequest;
 import com.gpn.employee.model.dto.UpdateEmployeeRequest;
 import com.gpn.employee.repository.EmployeeRepository;
+import com.gpn.employee.repository.EmployeeSpecification;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +24,9 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
 
     @Transactional(readOnly = true)
-    public List<EmployeeDto> getAllEmployees() {
-        return employeeRepository.findAllByOrderByCreatedAtDesc().stream()
+    public List<EmployeeDto> getAllEmployees(final EmployeeFilterRequest filter) {
+        final var spec = EmployeeSpecification.filter(filter);
+        return employeeRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt")).stream()
                 .map(EmployeeMapper::toDto)
                 .toList();
     }

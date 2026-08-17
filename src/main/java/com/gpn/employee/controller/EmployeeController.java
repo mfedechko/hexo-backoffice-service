@@ -1,7 +1,9 @@
 package com.gpn.employee.controller;
 
+import com.gpn.employee.model.EmployeeStatus;
 import com.gpn.employee.model.dto.CreateEmployeeRequest;
 import com.gpn.employee.model.dto.EmployeeDto;
+import com.gpn.employee.model.dto.EmployeeFilterRequest;
 import com.gpn.employee.model.dto.UpdateEmployeeRequest;
 import com.gpn.employee.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,8 +22,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -33,10 +37,22 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @GetMapping
-    @Operation(summary = "List all employees", description = "Returns all employees, newest first.")
+    @Operation(
+            summary = "List all employees",
+            description = "Returns employees matching the given filters, newest first. All filters are optional."
+    )
     @ApiResponse(responseCode = "200", description = "Employees returned")
-    public ResponseEntity<List<EmployeeDto>> getAllEmployees() {
-        return ResponseEntity.ok(employeeService.getAllEmployees());
+    public ResponseEntity<List<EmployeeDto>> getAllEmployees(
+            @Parameter(description = "First name contains (case-insensitive)") @RequestParam(required = false) String firstName,
+            @Parameter(description = "Last name contains (case-insensitive)") @RequestParam(required = false) String lastName,
+            @Parameter(description = "Phone contains") @RequestParam(required = false) String phone,
+            @Parameter(description = "Email contains (case-insensitive)") @RequestParam(required = false) String email,
+            @Parameter(description = "Department contains (case-insensitive)") @RequestParam(required = false) String department,
+            @Parameter(description = "Employee status") @RequestParam(required = false) EmployeeStatus status,
+            @Parameter(description = "Created at, from (inclusive)") @RequestParam(required = false) LocalDateTime createdFrom,
+            @Parameter(description = "Created at, to (inclusive)") @RequestParam(required = false) LocalDateTime createdTo) {
+        return ResponseEntity.ok(employeeService.getAllEmployees(
+                new EmployeeFilterRequest(firstName, lastName, phone, email, department, status, createdFrom, createdTo)));
     }
 
     @GetMapping("/{id}")
