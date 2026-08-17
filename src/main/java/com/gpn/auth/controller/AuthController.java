@@ -1,10 +1,10 @@
 package com.gpn.auth.controller;
 
-import com.gpn.auth.model.RoleEntity;
-import com.gpn.auth.model.UserEntity;
+import com.gpn.users.model.RoleEntity;
+import com.gpn.users.model.UserEntity;
 import com.gpn.auth.model.dto.LoginRequest;
 import com.gpn.auth.model.dto.LoginResponse;
-import com.gpn.auth.repository.UserRepository;
+import com.gpn.users.repository.UserRepository;
 import com.gpn.auth.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

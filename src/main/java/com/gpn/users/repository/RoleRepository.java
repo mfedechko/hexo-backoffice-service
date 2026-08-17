@@ -1,6 +1,6 @@
-package com.gpn.auth.repository;
+package com.gpn.users.repository;
 
-import com.gpn.auth.model.RoleEntity;
+import com.gpn.users.model.RoleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

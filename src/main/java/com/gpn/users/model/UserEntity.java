@@ -1,4 +1,4 @@
-package com.gpn.auth.model;
+package com.gpn.users.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

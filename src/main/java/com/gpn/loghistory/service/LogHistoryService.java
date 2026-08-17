@@ -79,4 +79,10 @@ public class LogHistoryService {
         log.setUserId(currentUser.id());
         return log;
     }
+
+    public void saveAddUserLog(final Long id, final String email) {
+        final var log = createLogWithUserFields();
+        log.setModule(LogHistoryModule.USER);
+
+    }
 }

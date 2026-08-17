@@ -1,6 +1,6 @@
 package com.gpn.auth.config;
 
-import com.gpn.auth.repository.UserRepository;
+import com.gpn.users.repository.UserRepository;
 import com.gpn.auth.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
