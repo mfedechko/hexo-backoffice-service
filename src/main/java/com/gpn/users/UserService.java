@@ -3,8 +3,10 @@ package com.gpn.users;
 import com.gpn.auth.security.AuthDetailsHolder;
 import com.gpn.loghistory.service.LogHistoryService;
 import com.gpn.users.exception.UserNotFoundException;
+import com.gpn.users.mapper.UserMapper;
 import com.gpn.users.model.UserEntity;
 import com.gpn.users.model.dto.AddUserRequest;
+import com.gpn.users.model.dto.UserDetailsDto;
 import com.gpn.users.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,10 +28,14 @@ public class UserService {
         logHistoryService.saveAddUserLog(currentUser.id(), saved.getEmail());
     }
 
-    public void getUserDetails() {
-
+    @Transactional(readOnly = true)
+    public UserDetailsDto getUserDetails(final Long userId) {
+        final var userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(String.format("User with id: %s not found", userId)));
+        return UserMapper.toDto(userEntity);
     }
 
+    @Transactional
     public void updateUserDetails() {
         final var userId = AuthDetailsHolder.getCurrentUser().id();
         final var user = userRepository.findById(userId)
