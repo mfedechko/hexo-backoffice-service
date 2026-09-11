@@ -8,6 +8,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,6 +32,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("message", message));
+    }
+
+    /**
+     * Malformed query/path params — e.g. a bad {@code dateFrom}/{@code dateTo} value or a
+     * non-numeric {@code page}. Without this the error re-dispatches to {@code /error}, which
+     * the security chain rejects with an opaque 403.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, String>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String required = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "the expected type";
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", "Parameter '" + ex.getName() + "' has an invalid value; expected " + required));
+    }
+
+    /**
+     * {@code @Min}/{@code @Max} (and similar) violations on controller-method params.
+     */
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<Map<String, String>> handleHandlerValidation(HandlerMethodValidationException ex) {
+        String message = ex.getAllErrors()
+                .stream()
+                .map(err -> err.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", message.isBlank() ? "Invalid request parameters" : message));
     }
 
     @ExceptionHandler(LeadNotFoundException.class)
