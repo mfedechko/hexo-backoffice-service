@@ -28,12 +28,18 @@ public class OrderService {
     private final KeyCrmOrderClient orderClient;
     private final OrderMapper orderMapper;
 
-    /**
-     * Fetches every order created in the given (inclusive) date range, paging through KeyCRM
-     * internally since it caps each call at {@value MAX_PAGE_SIZE} items - same approach as
-     * {@code WarehouseService}'s full-catalog scan.
-     */
     public List<OrderDto> getOrders(OrderQuery query) {
+        return fetchOrders(query).stream().map(orderMapper::toDto).toList();
+    }
+
+    /**
+     * Fetches every raw order created in the given (inclusive) date range, paging through
+     * KeyCRM internally since it caps each call at {@value MAX_PAGE_SIZE} items - same approach
+     * as {@code WarehouseService}'s full-catalog scan. Exposed (rather than kept private) so
+     * {@code OrderSyncService} can persist the raw KeyCrmOrder tree without going through
+     * {@link OrderDto} first.
+     */
+    public List<KeyCrmOrder> fetchOrders(OrderQuery query) {
         LocalDate today = LocalDate.now(BUSINESS_ZONE);
         LocalDate from = query.dateFrom();
         LocalDate to = query.dateTo();
@@ -49,12 +55,12 @@ public class OrderService {
         Instant createdFrom = from.atStartOfDay(BUSINESS_ZONE).toInstant();
         Instant createdTo = to.plusDays(1).atStartOfDay(BUSINESS_ZONE).toInstant();
 
-        List<OrderDto> orders = new ArrayList<>();
+        List<KeyCrmOrder> orders = new ArrayList<>();
         int page = 1;
         int lastPage;
         do {
             KeyCrmPage<KeyCrmOrder> keyCrmPage = orderClient.getOrders(createdFrom, createdTo, page, MAX_PAGE_SIZE);
-            keyCrmPage.data().stream().map(orderMapper::toDto).forEach(orders::add);
+            orders.addAll(keyCrmPage.data());
 
             lastPage = keyCrmPage.lastPage() == null ? page : keyCrmPage.lastPage();
             page++;

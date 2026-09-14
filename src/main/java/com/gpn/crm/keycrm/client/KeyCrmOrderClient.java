@@ -39,4 +39,42 @@ public class KeyCrmOrderClient {
                 .body(new ParameterizedTypeReference<KeyCrmPage<KeyCrmOrder>>() {
                 });
     }
+
+    /**
+     * Every order, unfiltered, oldest first ({@code sort=id} - verified against a live call:
+     * KeyCRM defaults to newest-first otherwise). Used for the full-catalog sync, where paging
+     * needs a stable order across many requests rather than a date window.
+     */
+    public KeyCrmPage<KeyCrmOrder> getAllOrdersSortedById(int page, int limit) {
+        return keyCrmRestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/order")
+                        .queryParam("sort", "id")
+                        .queryParam("page", page)
+                        .queryParam("limit", limit)
+                        .queryParam("include", INCLUDE)
+                        .build())
+                .retrieve()
+                .body(new ParameterizedTypeReference<KeyCrmPage<KeyCrmOrder>>() {
+                });
+    }
+
+    /**
+     * Every order, unfiltered, newest first ({@code sort=-id} - verified against a live call).
+     * Used for the "latest orders" sync, where you want the most recent N orders regardless of
+     * what date they fall on.
+     */
+    public KeyCrmPage<KeyCrmOrder> getLatestOrdersSortedById(int page, int limit) {
+        return keyCrmRestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/order")
+                        .queryParam("sort", "-id")
+                        .queryParam("page", page)
+                        .queryParam("limit", limit)
+                        .queryParam("include", INCLUDE)
+                        .build())
+                .retrieve()
+                .body(new ParameterizedTypeReference<KeyCrmPage<KeyCrmOrder>>() {
+                });
+    }
 }
