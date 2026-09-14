@@ -1,9 +1,11 @@
 package com.gpn.crm.order.service;
 
 import com.gpn.crm.keycrm.client.KeyCrmOrderClient;
+import com.gpn.crm.keycrm.dto.KeyCrmOrder;
 import com.gpn.crm.keycrm.dto.KeyCrmPage;
 import com.gpn.crm.order.dto.OrderDto;
 import com.gpn.crm.order.dto.OrderQuery;
+import com.gpn.crm.order.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ public class OrderService {
     private static final int MAX_PAGE_SIZE = 50;
 
     private final KeyCrmOrderClient orderClient;
+    private final OrderMapper orderMapper;
 
     /**
      * Fetches every order created in the given (inclusive) date range, paging through KeyCRM
@@ -50,8 +53,8 @@ public class OrderService {
         int page = 1;
         int lastPage;
         do {
-            KeyCrmPage<OrderDto> keyCrmPage = orderClient.getOrders(createdFrom, createdTo, page, MAX_PAGE_SIZE);
-            orders.addAll(keyCrmPage.data());
+            KeyCrmPage<KeyCrmOrder> keyCrmPage = orderClient.getOrders(createdFrom, createdTo, page, MAX_PAGE_SIZE);
+            keyCrmPage.data().stream().map(orderMapper::toDto).forEach(orders::add);
 
             lastPage = keyCrmPage.lastPage() == null ? page : keyCrmPage.lastPage();
             page++;

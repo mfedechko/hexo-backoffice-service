@@ -1,7 +1,7 @@
 package com.gpn.crm.keycrm.client;
 
+import com.gpn.crm.keycrm.dto.KeyCrmOrder;
 import com.gpn.crm.keycrm.dto.KeyCrmPage;
-import com.gpn.crm.order.dto.OrderDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -19,9 +19,13 @@ public class KeyCrmOrderClient {
     private static final DateTimeFormatter KEYCRM_TIMESTAMP =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneOffset.UTC);
 
+    /** Every relation the app currently reads off an order - see the KeyCrmOrder* DTOs. */
+    private static final String INCLUDE = "buyer,products.offer,manager,tags,status,marketing,"
+            + "payments,shipping.lastHistory,shipping.deliveryService,expenses,custom_fields,assigned";
+
     private final RestClient keyCrmRestClient;
 
-    public KeyCrmPage<OrderDto> getOrders(Instant createdFrom, Instant createdTo, int page, int limit) {
+    public KeyCrmPage<KeyCrmOrder> getOrders(Instant createdFrom, Instant createdTo, int page, int limit) {
         String createdBetween = KEYCRM_TIMESTAMP.format(createdFrom) + "," + KEYCRM_TIMESTAMP.format(createdTo);
         return keyCrmRestClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -29,10 +33,10 @@ public class KeyCrmOrderClient {
                         .queryParam("filter[created_between]", createdBetween)
                         .queryParam("page", page)
                         .queryParam("limit", limit)
-                        .queryParam("include", "products.offer")
+                        .queryParam("include", INCLUDE)
                         .build())
                 .retrieve()
-                .body(new ParameterizedTypeReference<KeyCrmPage<OrderDto>>() {
+                .body(new ParameterizedTypeReference<KeyCrmPage<KeyCrmOrder>>() {
                 });
     }
 }
